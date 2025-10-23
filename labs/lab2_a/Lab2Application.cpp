@@ -2,6 +2,9 @@
 #include "GeometricTools.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "BufferLayout.h"
+#include "ShadersDataTypes.h"
+#include "VertexArray.h"
 
 #include "Shaders.h"
 
@@ -32,30 +35,45 @@ unsigned Lab2Application::Run() const {
     // change the viewport so it becomes a square and not stretched
     glViewport(100, 100, 500, 500);
 
-    GLuint vao; //, ebo; //, vbo;
+    //GLuint vao; //, ebo; //, vbo;
 
-    glGenVertexArrays(1, &vao);
-    //glGenBuffers(1, &vbo);
-    //glGenBuffers(1, &ebo);
-
+    //glGenVertexArrays(1, &vao);
+    //glBindVertexArray(vao);
     auto shape = GeometricTools::UnitGrid2D(8,8);
     auto indices  = GeometricTools::UnitGridTopologyTriangles(8,8);
 
-    VertexBuffer vb(shape.data(), static_cast<GLsizei>(shape.size())); //* sizeof(float)));
-    IndexBuffer ibo(indices.data(),static_cast<GLsizei>(indices.size() * sizeof(unsigned int))); //what to put here?);
-    // Binds VAO and VBO
-    // Bind vertex buffer
-    vb.Bind();
-    glBindVertexArray(vao);
-    //glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    //glBufferData(GL_ARRAY_BUFFER, shape.size() * sizeof(float), shape.data(), GL_STATIC_DRAW);
+    auto vb = std::make_shared<VertexBuffer>(shape.data(), static_cast<GLsizei>(shape.size() * sizeof(float)));
+    auto ib = std::make_shared<IndexBuffer>(indices.data(), static_cast<GLsizei>(indices.size() * sizeof(unsigned int)));
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
-    glEnableVertexAttribArray(0);
+    BufferLayout layout = {
+        { ShaderDataType::Float2, "a_Position" },
+        { ShaderDataType::Float4, "a_Color" }
+    };
+    vb->SetLayout(layout);
+
+
+    VertexArray va;
+    va.Bind();
+    va.AddVertexBuffer(vb);
+    va.SetIndexBuffer(ib);
+
+    va.Unbind();
+    //vb.SetLayout(layout);
+    //uint32_t index = 0;
+    //for (const auto& element : vb.GetLayout()) {
+    //    glEnableVertexArrayAttrib(vao,index);
+    //    glVertexAttribPointer(index,
+    //        element.GetElementCount(),
+    //        ShaderDataTypeToOpenGLBaseType(element.Type),
+    //        element.Normalized ? GL_TRUE : GL_FALSE,
+    //        vb.GetLayout().GetStride(),
+    //        (const void*)element.Offset);
+    //    index++;
+    //}
+    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
+    //glEnableVertexAttribArray(0);
     // bind EBO
-    ibo.Bind();
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
     // Compile shaders from Shaders.h
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -88,20 +106,17 @@ unsigned Lab2Application::Run() const {
         glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glBindVertexArray(vao);
-        // for vertices
-        //glDrawArrays(GL_TRIANGLES, 0, shape.size() / 2);
-        // Draw using Draw elements for indices. for indices instead of vertices.
+        //glBindVertexArray(vao);
+        // Draw using glDrawElements for indices. for indices instead of vertices.
+        va.Bind();
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-
+        va.Unbind();
         glfwSwapBuffers(window);
     }
 
     // clean up after rendering but not currently needed in lab2
     glDeleteProgram(program);
-    //glDeleteBuffers(1, &vbo);
-    //glDeleteBuffers(1, &ebo);
-    glDeleteVertexArrays(1, &vao);
+    //glDeleteVertexArrays(1, &vao);
 
     return 0;
 }

@@ -2,6 +2,10 @@
 add_library(Rendering
         VertexBuffer.cpp
         IndexBuffer.cpp
+        ShadersDataTypes.h
+        BufferLayout.h
+        VertexArray.h
+        VertexArray.cpp
 )
 
 # Optional: create an alias for convenience

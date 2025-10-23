@@ -35,6 +35,11 @@ namespace GeometricTools {
                 float fx = -0.5f + x * stepX;  // centered at origin
                 vertices.push_back(fx);
                 vertices.push_back(fy);
+                vertices.push_back(1.0f); // r
+                vertices.push_back(1.0f); // g
+                vertices.push_back(1.0f); // b
+                vertices.push_back(1.0f); // a
+
             }
         }
         return vertices;

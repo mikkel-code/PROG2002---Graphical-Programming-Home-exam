@@ -32,7 +32,7 @@ enum class ShaderDataType
 constexpr GLsizei ShaderDataTypeSize(ShaderDataType type)
 {
   switch (type)
-  {
+  { // returns the bytes (size)
     case ShaderDataType::Float: return 4;
     case ShaderDataType::Float2: return 4 * 2;
     case ShaderDataType::Float3: return 4 * 3;
@@ -93,6 +93,3 @@ constexpr GLsizei ShaderDataTypeComponentCount(ShaderDataType type)
 }
 
 #endif // SHADERSDATATYPES_H_
-
-
-#endif //SHADERSDATATYPES_H
