@@ -11,9 +11,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <Shader.h>
 
 struct coordinateState {
-    GLuint program;
+    std::shared_ptr<Shader> shader;
     int coordinateX = 0;
     int coordinateY = 0;
 };
@@ -35,15 +36,11 @@ unsigned Lab2Application::Run() const {
     // change the viewport so it becomes a square and not stretched
     glViewport(100, 100, 500, 500);
 
-    //GLuint vao; //, ebo; //, vbo;
-
-    //glGenVertexArrays(1, &vao);
-    //glBindVertexArray(vao);
     auto shape = GeometricTools::UnitGrid2D(8,8);
     auto indices  = GeometricTools::UnitGridTopologyTriangles(8,8);
 
-    auto vb = std::make_shared<VertexBuffer>(shape.data(), static_cast<GLsizei>(shape.size() * sizeof(float)));
-    auto ib = std::make_shared<IndexBuffer>(indices.data(), static_cast<GLsizei>(indices.size() * sizeof(unsigned int)));
+    auto vb = std::make_shared<VertexBuffer>(shape.data(), static_cast<GLsizei>(shape.size())); //  * sizeof(float)?
+    auto ib = std::make_shared<IndexBuffer>(indices.data(), static_cast<GLsizei>(indices.size()));
 
     BufferLayout layout = {
         { ShaderDataType::Float2, "a_Position" },
@@ -52,77 +49,37 @@ unsigned Lab2Application::Run() const {
     vb->SetLayout(layout);
 
 
-    VertexArray va;
-    va.Bind();
-    va.AddVertexBuffer(vb);
-    va.SetIndexBuffer(ib);
+    auto va = std::make_shared<VertexArray>();
+    va->Bind();
+    va->AddVertexBuffer(vb);
+    va->SetIndexBuffer(ib);
 
-    va.Unbind();
-    //vb.SetLayout(layout);
-    //uint32_t index = 0;
-    //for (const auto& element : vb.GetLayout()) {
-    //    glEnableVertexArrayAttrib(vao,index);
-    //    glVertexAttribPointer(index,
-    //        element.GetElementCount(),
-    //        ShaderDataTypeToOpenGLBaseType(element.Type),
-    //        element.Normalized ? GL_TRUE : GL_FALSE,
-    //        vb.GetLayout().GetStride(),
-    //        (const void*)element.Offset);
-    //    index++;
-    //}
-    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, nullptr);
-    //glEnableVertexAttribArray(0);
-    // bind EBO
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+    auto chessboardShader = std::make_shared<Shader>(vertexShaderSrc, fragmentShaderSrc);
+    chessboardShader->Bind();
+    chessboardShader->UploadUniformInt("divisionsX", 8);
+    chessboardShader->UploadUniformInt("divisionsY", 8);
 
-    // Compile shaders from Shaders.h
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    const char* vss = vertexShaderSrc.c_str();
-    glShaderSource(vertexShader, 1, &vss, nullptr);
-    glCompileShader(vertexShader);
+    state.shader = chessboardShader;
 
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    const char* fss = fragmentShaderSrc.c_str();
-    glShaderSource(fragmentShader, 1, &fss, nullptr);
-    glCompileShader(fragmentShader);
-
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glLinkProgram(program);
-
-    // Shaders are no longer needed after linking so they can be deleted
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    state.program = program;
     glfwSetWindowUserPointer(window, &state);
 
-    glUseProgram(program);
     // === Render loop ===
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
-        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+        glClearColor(0.3f, 0.1f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //glBindVertexArray(vao);
-        // Draw using glDrawElements for indices. for indices instead of vertices.
-        va.Bind();
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-        va.Unbind();
+        //va.Bind();
+        glDrawElements(GL_TRIANGLES, ib->GetCount(), GL_UNSIGNED_INT, nullptr);
+        //va.Unbind();
         glfwSwapBuffers(window);
     }
-
-    // clean up after rendering but not currently needed in lab2
-    glDeleteProgram(program);
-    //glDeleteVertexArrays(1, &vao);
-
     return 0;
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (action != GLFW_PRESS) return; // So the coordinates doesnt skip one
+    if (action != GLFW_PRESS) return; // So the coordinates doesnt skip one with key presses
 
     // Get back coordinateState pointer
     auto* state = static_cast<coordinateState*>(glfwGetWindowUserPointer(window));
@@ -130,13 +87,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
     if (key == GLFW_KEY_UP) state->coordinateY+=1;
     if (key == GLFW_KEY_DOWN) state->coordinateY -=1;
-
     if (key == GLFW_KEY_RIGHT) state->coordinateX +=1;
     if (key == GLFW_KEY_LEFT) state->coordinateX -=1;
     // Update uniform
 
-    glUseProgram(state->program);
-    glUniform1i(glGetUniformLocation(state->program, "greenY"), state->coordinateY);
-    glUniform1i(glGetUniformLocation(state->program, "greenX"), state->coordinateX);
-
+    state->shader->Bind();
+    state->shader->UploadUniformInt("greenX", state->coordinateX);
+    state->shader->UploadUniformInt("greenY", state->coordinateY);
 }

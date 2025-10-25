@@ -22,7 +22,7 @@ namespace GeometricTools {
     };
 
     // A 2D Unit square grid centered at the origin
-    // Vector requires N to be known at runtime. Array will not
+    // Is a vector so it will run at compile time. Same as constexpr
     static std::vector<float> UnitGrid2D(int divisionsX, int divisionsY) {
         std::vector<float> vertices;
 

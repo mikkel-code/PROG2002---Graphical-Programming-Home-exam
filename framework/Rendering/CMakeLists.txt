@@ -6,6 +6,7 @@ add_library(Rendering
         BufferLayout.h
         VertexArray.h
         VertexArray.cpp
+        Shader.cpp
 )
 
 # Optional: create an alias for convenience
@@ -18,5 +19,5 @@ target_include_directories(Rendering
 
 # Link libraries this library depends on
 target_link_libraries(Rendering
-        PUBLIC glad glfw
+        PUBLIC glad glfw glm
 )
