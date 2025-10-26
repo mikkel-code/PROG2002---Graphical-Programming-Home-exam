@@ -28,8 +28,8 @@ public:
         this->CalculateOffsetAndStride();
     }
 
-    inline const std::vector<BufferAttribute> &GetAttributes() const { return this->Attributes; }
-    inline GLsizei GetStride() const { return this->Stride; }
+    const std::vector<BufferAttribute> &GetAttributes() const { return this->Attributes; }
+    GLsizei GetStride() const { return this->Stride; }
 
     std::vector<BufferAttribute>::iterator begin() { return this->Attributes.begin(); }
     std::vector<BufferAttribute>::iterator end() { return this->Attributes.end(); }

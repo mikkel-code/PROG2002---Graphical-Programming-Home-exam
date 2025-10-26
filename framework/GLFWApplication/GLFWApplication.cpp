@@ -22,13 +22,13 @@ unsigned GLFWApplication::Init() {
         return -1;
     }
 
-    // Creating window hints for OpenGL version update 4.6 (works for my windows)
+    // Creating window hints for OpenGL version update 4.6 (Optimal for my pc)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Creating the window and giving it context.
-    GLFWwindow* window = glfwCreateWindow(800, 600, "MY window", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Prog2002", nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();

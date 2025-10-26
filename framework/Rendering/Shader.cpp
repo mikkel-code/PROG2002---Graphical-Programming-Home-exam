@@ -1,6 +1,7 @@
 #include "Shader.h"
 #include <iostream>
 #include <string>
+#include <glm/glm.hpp>
 
 Shader::Shader(const std::string &vertexSrc, const std::string &fragmentSrc)
 {
@@ -69,6 +70,15 @@ void Shader::UploadUniformInt(const std::string& name, GLint value) {
         return;
     }
     glUniform1i(location, value);
+}
+
+void Shader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix) {
+    GLint location = glGetUniformLocation(ShaderProgram, name.c_str());
+    if (location == -1) {
+        std::cout << "WARNING::SHADER::UNIFORM_NOT_FOUND" << name << std::endl;
+        return;
+    }
+    glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
 }
 
 // For possible new uses IDK

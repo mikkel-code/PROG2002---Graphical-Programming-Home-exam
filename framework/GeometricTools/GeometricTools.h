@@ -66,4 +66,55 @@ namespace GeometricTools {
         }
     return indices;
     }
+
+    static std::vector<float> UnitGrid3D(int divisionsX, int divisionsY) {
+        std::vector<float> vertices;
+
+        float stepX = 1.0f / divisionsX; // how far each should move.
+        float stepY = 1.0f / divisionsY;
+
+        for (int y = 0; y <= divisionsY; ++y) {
+            float fy = -0.5f + y * stepY;  // centered at origin
+            for (int x = 0; x <= divisionsX; ++x) {
+                float fx = -0.5f + x * stepX;  // centered at origin
+                vertices.push_back(fx);  // x
+                vertices.push_back(0.0f);  // z
+                vertices.push_back(fy);  // y
+                vertices.push_back(1.0f); // r
+                vertices.push_back(1.0f); // g
+                vertices.push_back(1.0f); // b
+                vertices.push_back(1.0f); // a
+
+            }
+        }
+        return vertices;
+    }
+
+    constexpr std::array<float, 8*3> Cube3D = {
+        -1.0f,-1.0f,-1.0f, // 0
+         1.0f,-1.0f,-1.0f, // 1
+         1.0f, 1.0f,-1.0f, // 2
+        -1.0f, 1.0f,-1.0f, // 3
+        -1.0f,-1.0f, 1.0f, // 4
+         1.0f,-1.0f, 1.0f, // 5
+         1.0f, 1.0f, 1.0f, // 6
+        -1.0f, 1.0f, 1.0f  // 7
+    };
+
+    static std::vector<unsigned int> CubeIndices() {
+        return {
+            // Front face
+            0, 1, 2,  2, 3, 0,
+            // Back face
+            5, 4, 7,  7, 6, 5,
+            // Left face
+            4, 0, 3,  3, 7, 4,
+            // Right face
+            1, 5, 6,  6, 2, 1,
+            // Bottom face
+            4, 5, 1,  1, 0, 4,
+            // Top face
+            3, 2, 6,  6, 7, 3
+        };
+    }
 }
