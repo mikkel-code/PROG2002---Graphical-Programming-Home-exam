@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GLFWAPPLICATION_H
+#define GLFWAPPLICATION_H
 #include <string>
 
 class GLFWApplication {
@@ -9,3 +10,4 @@ public:
     virtual unsigned Init();             // Default behavior (setup GLFW, GLAD)
     virtual unsigned Run() const = 0;    // Must be defined by subclasses
 };
+#endif

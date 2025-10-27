@@ -85,10 +85,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     auto* state = static_cast<coordinateState*>(glfwGetWindowUserPointer(window));
     if (!state) {std::cout << "Something wrong with UserPointer in key callbacks"; return;}
 
-    if (key == GLFW_KEY_UP) state->coordinateY+=1;
-    if (key == GLFW_KEY_DOWN) state->coordinateY -=1;
-    if (key == GLFW_KEY_RIGHT) state->coordinateX +=1;
-    if (key == GLFW_KEY_LEFT) state->coordinateX -=1;
+    if (key == GLFW_KEY_UP)     if (state->coordinateY < 7) state->coordinateY +=1;
+    if (key == GLFW_KEY_DOWN)   if (state->coordinateY > 0) state->coordinateY -=1;
+    if (key == GLFW_KEY_RIGHT)  if (state->coordinateX < 7) state->coordinateX +=1;
+    if (key == GLFW_KEY_LEFT)   if (state->coordinateX > 0) state->coordinateX -=1;
+
     // Update uniform
 
     state->shader->Bind();

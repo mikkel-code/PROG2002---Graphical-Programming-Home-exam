@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAB3APPLICATION_H
+#define LAB3APPLICATION_H
 #include "GLFWApplication.h"
 #include <string>
 
@@ -8,3 +9,4 @@ public:
 
     unsigned Run() const override;  // render loop + shape
 };
+#endif

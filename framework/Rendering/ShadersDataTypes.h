@@ -1,7 +1,3 @@
-//
-// Created by jordh on 21.10.2025.
-//
-
 #ifndef SHADERSDATATYPES_H
 #define SHADERSDATATYPES_H
 

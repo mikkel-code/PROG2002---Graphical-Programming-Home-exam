@@ -5,13 +5,16 @@
 #include "BufferLayout.h"
 #include "ShadersDataTypes.h"
 #include "VertexArray.h"
+#include "RenderCommands.h"
+#include "PerspectiveCamera.h"
+#include "Shader.h"
+#include "cube.h"
 
 #include "Shaders.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <Shader.h>
 #include <glm/fwd.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -23,6 +26,7 @@ struct programState {
     float xRadians = 0.0f;
     float yRadians = 0.0f;
 };
+
 
 Lab3Application::Lab3Application(const std::string& name, const std::string& version)
     : GLFWApplication(name, version) {
@@ -39,8 +43,29 @@ unsigned Lab3Application::Run() const {
     programState state;
 
     // change the viewport so it becomes a square and not stretched
-    glViewport(100, 100, 500, 500);
+    glViewport(0, 0, 500, 500);
     glEnable(GL_DEPTH_TEST);
+
+    PerspectiveCamera::Frustrum frustrum;
+    frustrum.angle = 50.0f;
+    frustrum.width = 1.0f;   // aspect ratio 1:1
+    frustrum.height = 1.0f;
+    frustrum.near = 0.1f;
+    frustrum.far = 10.0f;
+
+    PerspectiveCamera camera(
+        frustrum,
+        glm::vec3(3.0f, 2.0, 0.5f),   // position
+        glm::vec3(0.0f, 0.0f, 0.0f),  // lookAt
+        glm::vec3(0.0f, 1.0f, 0.0f)   // up
+    );
+
+    glfwSetWindowUserPointer(window, &state);
+
+    RenderCommands::SetClearColor(glm::vec3(0.5f, 0.05f, 0.05f));
+
+    auto view = camera.GetViewMatrix();
+    auto proj = camera.GetProjectionMatrix();
     // chessboard
     auto chessboard = GeometricTools::UnitGrid3D(8,8);
     auto chessboardIndices  = GeometricTools::UnitGridTopologyTriangles(8,8);
@@ -59,13 +84,8 @@ unsigned Lab3Application::Run() const {
     chessboardVA->SetIndexBuffer(chessboardIB);
     chessboardVA->Unbind();
 
+
     auto model = glm::mat4(1.0f);
-    glm::mat4 view = glm::lookAt(
-        glm::vec3(0.0f, 0.1f, 0.5f),
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
-    glm::mat4 proj = glm::perspective(glm::radians(50.0f), 1.0f, 0.1f, 10.0f);
 
     auto chessboardShader = std::make_shared<Shader>(vertexShaderSrc, fragmentShaderSrc);
     chessboardShader->Bind();
@@ -75,81 +95,91 @@ unsigned Lab3Application::Run() const {
     chessboardShader->UploadUniformInt("divisionsX", 8);
     chessboardShader->UploadUniformInt("divisionsY", 8);
 
+    state.shader = chessboardShader;
+
 
     // cube
-    auto cube = GeometricTools::Cube3D;
+    auto cube3d = GeometricTools::Cube3D;
     auto cubeIndices = GeometricTools::CubeIndices();
 
-    auto cubeVB = std::make_shared<VertexBuffer>(cube.data(), static_cast<GLsizei>(cube.size()));
+    auto cubeVB = std::make_shared<VertexBuffer>(cube3d.data(), static_cast<GLsizei>(cube3d.size()));
     auto cubeIB = std::make_shared<IndexBuffer>(cubeIndices.data(), static_cast<GLsizei>(cubeIndices.size()));
 
     BufferLayout cubeLayout = {
         { ShaderDataType::Float3, "a_Position" },
     };
     cubeVB->SetLayout(cubeLayout);
+
     auto cubeVA = std::make_shared<VertexArray>();
     cubeVA->Bind();
     cubeVA->AddVertexBuffer(cubeVB);
     cubeVA->SetIndexBuffer(cubeIB);
     cubeVA->Unbind();
 
-    // cube shader
     auto cubeShader = std::make_shared<Shader>(cubeVertexShaderSrc, cubeFragmentShaderSrc);
     cubeShader->Bind();
     cubeShader->UploadUniformMat4("view", view);
     cubeShader->UploadUniformMat4("proj", proj);
-    state.shader = chessboardShader;
-    glfwSetWindowUserPointer(window, &state);
 
-    // Render loop
+    std::vector<Cube> cubes;
+
+    for (int x = 0; x < 8; x++) { // front row
+        for (int z = 0; z < 2; z++) {
+            Cube c;
+            float step = 1.0f / 8.0f;
+            c.position = glm::vec3(-0.5f + step * (x + 0.5f), 0.05f, -0.5f + step * (z + 0.5f));
+            c.scale = glm::vec3(0.05f);
+            c.color = glm::vec4(0.05f,0.05f,0.3f,1.0f);
+            cubes.push_back(c);
+        }
+    }
+
+    for (int x = 0; x < 8; x++) { // back row
+        for (int z = 6; z < 8; z++) {
+            Cube c;
+            float step = 1.0f / 8.0f;
+            c.position = glm::vec3(-0.5f + step * (x + 0.5f), 0.05f, -0.5f + step * (z + 0.5f));
+            c.scale = glm::vec3(0.05f);
+            c.color = glm::vec4(0.3f,0.05f,0.05f,1.0f);
+            cubes.push_back(c);
+        }
+    }
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-
-        glClearColor(0.5f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         chessboardShader->Bind();
         chessboardVA->Bind();
-        glDrawElements(GL_TRIANGLES, chessboardIB->GetCount(), GL_UNSIGNED_INT, nullptr);
-        glm::mat4 cubeModel = glm::mat4(1.0f);
-        cubeModel = glm::translate(cubeModel, glm::vec3(0.0f,0.1f,0.0f));
-        cubeModel = glm::scale(cubeModel, glm::vec3(0.05f));
-        cubeModel = glm::rotate(cubeModel, glm::radians(state.xRadians), glm::vec3(1.0f, 0.0f, 0.0f));
-        cubeModel = glm::rotate(cubeModel, glm::radians(state.yRadians), glm::vec3(0.0f, 1.0f, 0.0f));
+        RenderCommands::DrawIndex(GL_TRIANGLES, chessboardVA);
 
-        cubeShader->Bind();
-        cubeShader->UploadUniformMat4("model", cubeModel);
-        cubeVA->Bind();
-        //glDrawArrays(GL_TRIANGLES, 0, 36);
-        glDrawElements(GL_TRIANGLES, cubeIB->GetCount(), GL_UNSIGNED_INT, nullptr);
+        for (const auto& cube : cubes) {
+            cube.Draw(cubeShader, cubeVA);
+        }
         glfwSwapBuffers(window);
-
     }
 }
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    //if (action != GLFW_PRESS) return; // So the coordinates doesnt skip one with key presses
 
-    // Get back coordinateState pointer
     auto* state = static_cast<programState*>(glfwGetWindowUserPointer(window));
     if (!state) {std::cout << "Something wrong with UserPointer in key callbacks"; return;}
 
-    if (key == GLFW_KEY_UP && action == GLFW_PRESS)     state->coordinateY +=1;
-    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)   state->coordinateY -=1;
-    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)  state->coordinateX +=1;
-    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)   state->coordinateX -=1;
+    if (key == GLFW_KEY_UP && action == GLFW_PRESS)     if (state->coordinateY < 7) state->coordinateY +=1;
+    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)   if (state->coordinateY > 0) state->coordinateY -=1;
+    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)  if (state->coordinateX < 7) state->coordinateX +=1;
+    if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)   if (state->coordinateX > 0) state->coordinateX -=1;
 
     if (key == GLFW_KEY_W) state->xRadians += 10;
     if (key == GLFW_KEY_S) state->xRadians -= 10;
     if (key == GLFW_KEY_D) state->yRadians += 10;
     if (key == GLFW_KEY_A) state->yRadians -= 10;
 
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {static int mode = 2;
-        mode = (mode + 1) % 3;
-        GLenum modes[] = {GL_LINE, GL_FILL, GL_POINT};
-        glPolygonMode(GL_FRONT_AND_BACK, modes[mode]);
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        static int mode = 1;
+        mode = (mode + 1) % 2;
+        mode ? RenderCommands::SetSolidMode() : RenderCommands::SetWireframeMode();
     }
-    // Update uniform
-
     state->shader->Bind();
     state->shader->UploadUniformInt("greenX", state->coordinateX);
     state->shader->UploadUniformInt("greenY", state->coordinateY);

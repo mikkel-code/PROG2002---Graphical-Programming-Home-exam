@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SHADERS_H
+#define SHADERS_H
 #include <string>
 
 const std::string vertexShaderSrc = R"(
@@ -45,3 +46,4 @@ const std::string fragmentShaderSrc = R"(
 // Step 2, declare green tile in fragment shader
 // Step 3, Modify the current shader with "if"
 // Step 4, pass the coordinates for the green tile.
+#endif

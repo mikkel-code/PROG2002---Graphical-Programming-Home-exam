@@ -7,6 +7,12 @@ add_library(Rendering
         VertexArray.h
         VertexArray.cpp
         Shader.cpp
+        RenderCommands.h
+        Camera.h
+        PerspectiveCamera.h
+        OrthographicCamera.h
+        PerspectiveCamera.cpp
+        OrthographicCamera.h.cpp
 )
 
 # Optional: create an alias for convenience

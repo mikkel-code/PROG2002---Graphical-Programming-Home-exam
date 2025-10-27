@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GEOMETRICTOOLS_H
+#define GEOMETRICTOOLS_H
 #include <array>
 #include <vector>
 
@@ -118,3 +119,5 @@ namespace GeometricTools {
         };
     }
 }
+
+#endif

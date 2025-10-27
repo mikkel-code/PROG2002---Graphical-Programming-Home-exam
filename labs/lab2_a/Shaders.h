@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SHADERS_H
+#define SHADERS_H
 #include <string>
 
 const std::string vertexShaderSrc = R"(
@@ -47,3 +48,4 @@ const std::string fragmentShaderSrc = R"(
         color = baseColor * fragmentColor;
     }
 )";
+#endif

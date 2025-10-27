@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 Shader::Shader(const std::string &vertexSrc, const std::string &fragmentSrc)
 {
@@ -79,6 +80,15 @@ void Shader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
         return;
     }
     glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
+}
+
+void Shader::UploadUniformVec4(const std::string& name, const glm::vec4& vec) {
+    GLint location = glGetUniformLocation(ShaderProgram, name.c_str());
+    if (location == -1) {
+        std::cout << "WARNING::SHADER::UNIFORM_NOT_FOUND: " << name << std::endl;
+        return;
+    }
+    glUniform4fv(location, 1, glm::value_ptr(vec));
 }
 
 // For possible new uses IDK

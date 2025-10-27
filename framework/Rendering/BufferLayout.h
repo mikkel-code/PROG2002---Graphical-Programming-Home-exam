@@ -1,4 +1,6 @@
-#pragma once
+#ifndef BUFFER_LAYOUT_H
+#define BUFFER_LAYOUT_H
+
 #include <string>
 #include <vector>
 #include <glad/glad.h>
@@ -50,3 +52,5 @@ private:
     std::vector<BufferAttribute> Attributes;
     GLsizei Stride;
 };
+
+#endif

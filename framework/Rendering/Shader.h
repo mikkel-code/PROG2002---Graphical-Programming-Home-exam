@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SHADER_H
+#define SHADER_H
 
 #include <string>
 #include <glad/glad.h>
@@ -16,6 +17,7 @@ public:
     void UploadUniformFloat2(const std::string& name, const glm::vec2& vector);
     void UploadUniformInt(const std::string& name, GLint value);
     void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
+    void UploadUniformVec4(const std::string& name, const glm::vec4& vec);
 
 private:
     GLuint VertexShader;
@@ -24,3 +26,5 @@ private:
 
     void CompileShader(GLenum shaderType, const std::string &shaderSrc);
 };
+
+#endif

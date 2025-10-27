@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SHADERS_H
+#define SHADERS_H
 #include <string>
 
 const std::string vertexShaderSrc = R"(
@@ -55,19 +56,27 @@ const std::string cubeVertexShaderSrc = R"(
     #version 410 core
     layout(location = 0) in vec3 a_Position;
 
+    out vec4 fragmentColor;
+
     uniform mat4 model;
     uniform mat4 view;
     uniform mat4 proj;
+    uniform vec4 col;
 
     void main() {
         gl_Position = proj * view * model * vec4(a_Position, 1.0);
+        fragmentColor = col;
     }
 )";
 
 const std::string cubeFragmentShaderSrc = R"(
     #version 410 core
-    out vec4 fragmentColor;
+    in vec4 fragmentColor;
+    out vec4 color;
+
     void main() {
-        fragmentColor = vec4(0.0, 1.0, 0.0, 1.0); // green cube
+        color = vec4(fragmentColor); // green cube
     }
 )";
+
+#endif
