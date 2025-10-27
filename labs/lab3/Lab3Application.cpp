@@ -43,13 +43,13 @@ unsigned Lab3Application::Run() const {
     programState state;
 
     // change the viewport so it becomes a square and not stretched
-    glViewport(0, 0, 500, 500);
+    glViewport(0, 0, 800, 600);
     glEnable(GL_DEPTH_TEST);
 
     PerspectiveCamera::Frustrum frustrum;
     frustrum.angle = 50.0f;
-    frustrum.width = 1.0f;   // aspect ratio 1:1
-    frustrum.height = 1.0f;
+    frustrum.width = 800.0f;   // aspect ratio 1:1
+    frustrum.height = 600.0f;
     frustrum.near = 0.1f;
     frustrum.far = 10.0f;
 
@@ -175,11 +175,13 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_D) state->yRadians += 10;
     if (key == GLFW_KEY_A) state->yRadians -= 10;
 
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_E && action == GLFW_PRESS) {
         static int mode = 1;
         mode = (mode + 1) % 2;
         mode ? RenderCommands::SetSolidMode() : RenderCommands::SetWireframeMode();
     }
+
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {glfwSetWindowShouldClose(window, true);}
     state->shader->Bind();
     state->shader->UploadUniformInt("greenX", state->coordinateX);
     state->shader->UploadUniformInt("greenY", state->coordinateY);
