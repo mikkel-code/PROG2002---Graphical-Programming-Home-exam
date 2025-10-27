@@ -1,4 +1,4 @@
-add_executable(lab3 main.cpp "Lab3Application.cpp" "Lab3Application.h" "Shaders.h" "cube.h")
+add_executable(lab3 main.cpp "Lab3Application.cpp" "Lab3Application.h" "Shaders.h")
 
 target_link_libraries(lab3 PRIVATE glfw)
 target_link_libraries(lab3 PRIVATE glad)
