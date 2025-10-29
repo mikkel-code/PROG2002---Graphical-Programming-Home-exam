@@ -13,10 +13,12 @@ public:
     glm::vec3 position{0.0f};
     glm::vec3 rotation{0.0f};
     glm::vec3 scale{0.05f};
+    int boardCoordx;
+    int boardCoordz;
 
     Cube() = default;
-    Cube(const glm::vec3& pos, const glm::vec3& rot = glm::vec3(0.0f), const glm::vec3& scl = glm::vec3(0.05f))
-        : position(pos), rotation(rot), scale(scl) {}
+    Cube(const glm::vec3& pos, const glm::vec3& rot = glm::vec3(0.0f), const glm::vec3& scl = glm::vec3(0.05f))//, const int xCoord, const int zCoord)
+        : position(pos), rotation(rot), scale(scl) {} // , boardCoordx(xCoord), boardCoordz(zCoord)
 
     glm::mat4 GetModelMatrix() const {
         glm::mat4 model(1.0f);
@@ -28,10 +30,12 @@ public:
         return model;
     }
 
-    void Draw(std::shared_ptr<Shader> shader, std::shared_ptr<VertexArray> cubeVA) const {
+    void Draw(std::shared_ptr<Shader> shader, std::shared_ptr<VertexArray> cubeVA, int greenX, int greenZ) const {
         shader->Bind();
         shader->UploadUniformMat4("model", GetModelMatrix());
-        shader->UploadUniformVec4("col", color);
+        if (greenX == boardCoordx && greenZ == boardCoordz) {
+            shader->UploadUniformVec4("col", glm::vec4(0.0f,1.0f,0.0f,0.1f));
+        } else {shader->UploadUniformVec4("col", color);}
         cubeVA->Bind();
         RenderCommands::DrawIndex(GL_TRIANGLES, cubeVA);
     }

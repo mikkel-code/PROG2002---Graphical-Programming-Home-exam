@@ -16,15 +16,12 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <glm/fwd.hpp>
-#include <glm/ext/matrix_clip_space.hpp>
-#include <glm/ext/matrix_transform.hpp>
+bool pickUp = false;
 
 struct programState {
     std::shared_ptr<Shader> shader;
     int coordinateX = 0;
     int coordinateY = 0;
-    float xRadians = 0.0f;
-    float yRadians = 0.0f;
 };
 
 
@@ -128,8 +125,9 @@ unsigned Lab3Application::Run() const {
             Cube c;
             float step = 1.0f / 8.0f;
             c.position = glm::vec3(-0.5f + step * (x + 0.5f), 0.05f, -0.5f + step * (z + 0.5f));
-            c.scale = glm::vec3(0.05f);
+            c.scale = glm::vec3(0.03f);
             c.color = glm::vec4(0.05f,0.05f,0.3f,1.0f);
+            c.boardCoordx = x; c.boardCoordz = z;
             cubes.push_back(c);
         }
     }
@@ -139,8 +137,9 @@ unsigned Lab3Application::Run() const {
             Cube c;
             float step = 1.0f / 8.0f;
             c.position = glm::vec3(-0.5f + step * (x + 0.5f), 0.05f, -0.5f + step * (z + 0.5f));
-            c.scale = glm::vec3(0.05f);
+            c.scale = glm::vec3(0.03f);
             c.color = glm::vec4(0.3f,0.05f,0.05f,1.0f);
+            c.boardCoordx = x; c.boardCoordz = z;
             cubes.push_back(c);
         }
     }
@@ -154,7 +153,13 @@ unsigned Lab3Application::Run() const {
         RenderCommands::DrawIndex(GL_TRIANGLES, chessboardVA);
 
         for (const auto& cube : cubes) {
-            cube.Draw(cubeShader, cubeVA);
+            cube.Draw(cubeShader, cubeVA, state.coordinateX, state.coordinateY);
+        }
+
+        for (auto& cube : cubes) {
+            if (cube.boardCoordx == state.coordinateX && cube.boardCoordz == state.coordinateY && pickUp == true) {
+                cube.position.z = state.coordinateY;
+            }
         }
         glfwSwapBuffers(window);
     }
@@ -169,11 +174,17 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)   if (state->coordinateY > 0) state->coordinateY -=1;
     if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)  if (state->coordinateX < 7) state->coordinateX +=1;
     if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)   if (state->coordinateX > 0) state->coordinateX -=1;
-
+    /**
     if (key == GLFW_KEY_W) state->xRadians += 10;
     if (key == GLFW_KEY_S) state->xRadians -= 10;
     if (key == GLFW_KEY_D) state->yRadians += 10;
     if (key == GLFW_KEY_A) state->yRadians -= 10;
+    **/
+    if (key == GLFW_KEY_ENTER) {
+        pickUp == true;
+        static int mode = (mode + 1) % 2;
+        // mode ? pickUp == true : pickUp == false;
+    }
 
     if (key == GLFW_KEY_E && action == GLFW_PRESS) {
         static int mode = 1;
