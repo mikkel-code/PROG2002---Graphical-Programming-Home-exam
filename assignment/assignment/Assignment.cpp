@@ -1,4 +1,4 @@
-#include "Lab3Application.h"
+#include "Assignment.h"
 #include "GeometricTools.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -19,10 +19,10 @@
 #include <iostream>
 #include <glm/fwd.hpp>
 
-Lab3Application::Lab3Application(const std::string& name, const std::string& version)
+Assignment::Assignment(const std::string& name, const std::string& version)
     : GLFWApplication(name, version) {
 }
-unsigned Lab3Application::Run() const {
+unsigned Assignment::Run() const {
     GLFWwindow* window = glfwGetCurrentContext();
     if (!window) return -1;
 

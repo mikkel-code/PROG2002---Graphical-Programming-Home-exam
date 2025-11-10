@@ -43,9 +43,9 @@ unsigned GLFWApplication::Init() {
     // Load OpenGL with Glad
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Could not initialize GLAD" << std::endl;
-    }
+    //if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    //    std::cout << "Could not initialize GLAD" << std::endl;
+    //}
 
     return 0;
     std::cout << "OpenGL initialized\n";

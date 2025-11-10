@@ -12,7 +12,7 @@ add_library(Rendering
         PerspectiveCamera.h
         OrthographicCamera.h
         PerspectiveCamera.cpp
-        OrthographicCamera.h.cpp
+        OrthographicCamera.cpp
 )
 
 # Optional: create an alias for convenience
