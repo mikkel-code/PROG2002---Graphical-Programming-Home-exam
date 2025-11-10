@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 #include <glm/glm.hpp>
-#include "Cube.h"
+#include "cube.h"
 #include "Shader.h"
 
 struct ProgramState {
