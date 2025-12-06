@@ -34,7 +34,7 @@ public:
         shader->Bind();
         shader->UploadUniformMat4("model", GetModelMatrix());
         if (greenX == boardCoordx && greenZ == boardCoordz) {
-            shader->UploadUniformVec4("col", glm::vec4(0.0f,1.0f,0.0f,0.1f));
+            shader->UploadUniformVec4("col", glm::vec4(0.0f,1.0f,0.0f,1.0f));
         } else {shader->UploadUniformVec4("col", color);}
         cubeVA->Bind();
         RenderCommands::DrawIndex(GL_TRIANGLES, cubeVA);

@@ -1,4 +1,4 @@
-#include "Lab3Application.h"
+#include "Lab4Application.h"
 #include "GeometricTools.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -9,6 +9,7 @@
 #include "PerspectiveCamera.h"
 #include "Shader.h"
 #include "cube.h"
+#include "TextureManager.h"
 
 #include "Shaders.h"
 #include "ProgramState.h"
@@ -19,10 +20,13 @@
 #include <iostream>
 #include <glm/fwd.hpp>
 
-Lab3Application::Lab3Application(const std::string& name, const std::string& version)
+const std::string TEXTURE_DIR = "resources/textures/";
+
+Lab4Application::Lab4Application(const std::string& name, const std::string& version)
     : GLFWApplication(name, version) {
 }
-unsigned Lab3Application::Run() const {
+
+unsigned Lab4Application::Run() const {
     GLFWwindow* window = glfwGetCurrentContext();
     if (!window) return -1;
 
@@ -37,6 +41,11 @@ unsigned Lab3Application::Run() const {
     // change the viewport so it becomes a square and not stretched
     glViewport(0, 0, 800, 600);
     glEnable(GL_DEPTH_TEST);
+    // Enable blending
+    glEnable(GL_BLEND);
+    // Set the blending function: s*alpha + d(1-alpha)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
     PerspectiveCamera::Frustrum frustrum;
     frustrum.angle = 50.0f;
@@ -55,15 +64,20 @@ unsigned Lab3Application::Run() const {
     auto view = camera.GetViewMatrix();
     auto proj = camera.GetProjectionMatrix();
     // chessboard
-    auto chessboard = GeometricTools::UnitGrid3D(8,8);
+    auto chessboard = GeometricTools::UnitGridGeometry2DWTCoordsColors(8,8);
     auto chessboardIndices  = GeometricTools::UnitGridTopologyTriangles(8,8);
 
     auto chessboardVB = std::make_shared<VertexBuffer>(chessboard.data(), static_cast<GLsizei>(chessboard.size()));
     auto chessboardIB = std::make_shared<IndexBuffer>(chessboardIndices.data(), static_cast<GLsizei>(chessboardIndices.size()));
 
+    TextureManager* tm = TextureManager::GetInstance();
+    tm->LoadTexture2DRGBA("Chessboard",std::string(TEXTURES_DIR) + "floor_texture.png", 0);
+
     BufferLayout chessboardLayout = {
-        { ShaderDataType::Float3, "a_Position" },
-        { ShaderDataType::Float4, "a_Color" },
+        { ShaderDataType::Float3, "a_Position" }, // x y z
+        { ShaderDataType::Float2, "a_TexCoord" }, // u v
+        { ShaderDataType::Float4, "a_Color"}, // r g b
+
     };
     chessboardVB->SetLayout(chessboardLayout);
     auto chessboardVA = std::make_shared<VertexArray>();
@@ -82,6 +96,8 @@ unsigned Lab3Application::Run() const {
     chessboardShader->UploadUniformMat4("proj", proj);
     chessboardShader->UploadUniformInt("divisionsX", 8);
     chessboardShader->UploadUniformInt("divisionsY", 8);
+    chessboardShader->UploadUniformInt("u_floorTextureSampler", 0);
+    chessboardShader->UploadUniformBool("useTexture", state.useTexture);
 
     state.shader = chessboardShader;
 
@@ -92,6 +108,8 @@ unsigned Lab3Application::Run() const {
 
     auto cubeVB = std::make_shared<VertexBuffer>(cube3d.data(), static_cast<GLsizei>(cube3d.size()));
     auto cubeIB = std::make_shared<IndexBuffer>(cubeIndices.data(), static_cast<GLsizei>(cubeIndices.size()));
+
+    tm->LoadCubeMapRGBA("CubeCubeMap", std::string(TEXTURES_DIR) + "cube_texture.png", 1);
 
     BufferLayout cubeLayout = {
         { ShaderDataType::Float3, "a_Position" },
@@ -106,9 +124,11 @@ unsigned Lab3Application::Run() const {
 
     auto cubeShader = std::make_shared<Shader>(cubeVertexShaderSrc, cubeFragmentShaderSrc);
     cubeShader->Bind();
-    //cubeShader->UploadUniformMat4("view", view);
+    cubeShader->UploadUniformMat4("model", model);
+    cubeShader->UploadUniformMat4("view", view);
     cubeShader->UploadUniformMat4("proj", proj);
-
+    cubeShader->UploadUniformInt("uTexture", 1);
+    cubeShader->UploadUniformBool("useTexture", state.useTexture);
 
     constexpr float step = 1.0f/8.0f;
 
@@ -138,9 +158,11 @@ unsigned Lab3Application::Run() const {
         }
     }
 
+    // For delta time
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
 
+    // Run loop
     while (!glfwWindowShouldClose(window)) {
 
         //
@@ -160,6 +182,7 @@ unsigned Lab3Application::Run() const {
         auto view = camera.GetViewMatrix();
 
         chessboardShader->Bind();
+        chessboardShader->UploadUniformMat4("model", model);
         chessboardShader->UploadUniformMat4("view", view);
         chessboardShader->UploadUniformMat4("proj", projection);
 
@@ -168,6 +191,7 @@ unsigned Lab3Application::Run() const {
         RenderCommands::DrawIndex(GL_TRIANGLES, chessboardVA);
 
         cubeShader->Bind();
+        cubeShader->UploadUniformMat4("model", model);
         cubeShader->UploadUniformMat4("view", view);
         cubeShader->UploadUniformMat4("proj", projection);
 

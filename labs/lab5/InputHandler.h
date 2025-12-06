@@ -56,10 +56,17 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     }
     if (key == GLFW_KEY_Q && action == GLFW_PRESS) {glfwSetWindowShouldClose(window, true);}
 
+    if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+        static int mode = 1;
+        state->useTexture = (mode + 1) % 2; // true / false
+    }
+
     state->shader->Bind();
+
     state->shader->UploadUniformInt("greenX", state->coordinateX);
     state->shader->UploadUniformInt("greenY", state->coordinateY);
 }
+
 const float cooldown = 0.15f;
 
 void processInput(GLFWwindow* window, ProgramState& state, float deltaTime) {

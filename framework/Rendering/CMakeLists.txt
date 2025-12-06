@@ -13,6 +13,8 @@ add_library(Rendering
         OrthographicCamera.h
         PerspectiveCamera.cpp
         OrthographicCamera.cpp
+        TextureManager.h
+        TextureManager.cpp
 )
 
 # Optional: create an alias for convenience
@@ -25,5 +27,5 @@ target_include_directories(Rendering
 
 # Link libraries this library depends on
 target_link_libraries(Rendering
-        PUBLIC glad glfw glm
+        PUBLIC glad glfw glm stb
 )

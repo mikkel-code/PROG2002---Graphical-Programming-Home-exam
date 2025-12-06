@@ -16,6 +16,9 @@ public:
     void Unbind() const;
     void UploadUniformFloat2(const std::string& name, const glm::vec2& vector);
     void UploadUniformInt(const std::string& name, GLint value);
+
+    void UploadUniformBool(const std::string &name, bool value);
+
     void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
     void UploadUniformVec4(const std::string& name, const glm::vec4& vec);
 

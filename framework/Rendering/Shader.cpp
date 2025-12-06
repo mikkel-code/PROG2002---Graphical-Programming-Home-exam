@@ -73,10 +73,21 @@ void Shader::UploadUniformInt(const std::string& name, GLint value) {
     glUniform1i(location, value);
 }
 
+void Shader::UploadUniformBool(const std::string& name, bool value) {
+    GLint location = glGetUniformLocation(ShaderProgram, name.c_str());
+
+    // Check for error in UniformLocation
+    if (location == -1){
+        std::cerr << "WARNING::SHADER::UNIFORM_NOT_FOUND: " << name << std::endl;
+        return;
+    }
+    glUniform1i(location, value);
+}
+
 void Shader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix) {
     GLint location = glGetUniformLocation(ShaderProgram, name.c_str());
     if (location == -1) {
-        std::cout << "WARNING::SHADER::UNIFORM_NOT_FOUND" << name << std::endl;
+        std::cerr << "WARNING::SHADER::UNIFORM_NOT_FOUND" << name << std::endl;
         return;
     }
     glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0][0]);
@@ -85,7 +96,7 @@ void Shader::UploadUniformMat4(const std::string& name, const glm::mat4& matrix)
 void Shader::UploadUniformVec4(const std::string& name, const glm::vec4& vec) {
     GLint location = glGetUniformLocation(ShaderProgram, name.c_str());
     if (location == -1) {
-        std::cout << "WARNING::SHADER::UNIFORM_NOT_FOUND: " << name << std::endl;
+        std::cerr << "WARNING::SHADER::UNIFORM_NOT_FOUND: " << name << std::endl;
         return;
     }
     glUniform4fv(location, 1, glm::value_ptr(vec));

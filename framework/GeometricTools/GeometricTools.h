@@ -68,6 +68,69 @@ namespace GeometricTools {
     return indices;
     }
 
+    std::vector<float> UnitGridGeometry2DWTCoords(unsigned int X, unsigned int Y) {
+        std::vector<float> vertices;
+        vertices.reserve((X + 1) * (Y + 1) * 4); // 2 pos + 2 texcoord
+
+        for (unsigned int y = 0; y <= Y; ++y)
+        {
+            float v = static_cast<float>(y) / Y;  // 0..1
+            for (unsigned int x = 0; x <= X; ++x)
+            {
+                float u = static_cast<float>(x) / X;  // 0..1
+
+                // Position (x, y)
+                vertices.push_back(static_cast<float>(x));
+                vertices.push_back(static_cast<float>(y));
+
+                // Texture coordinate (u, v)
+                vertices.push_back(u);
+                vertices.push_back(v);
+            }
+        }
+
+        return vertices;
+    }
+
+    std::vector<float> UnitGridGeometry2DWTCoordsColors(unsigned int X, unsigned int Y) {
+        std::vector<float> vertices;
+        vertices.reserve((X + 1) * (Y + 1) * 8); // 8 floats per vertex
+
+        {
+            std::vector<float> vertices;
+            vertices.reserve((X + 1) * (Y + 1) * 9); // 3 pos + 2 tex + 4 color
+
+            for (unsigned int j = 0; j <= Y; ++j)
+            {
+                float v = static_cast<float>(j) / Y;
+                float z = v - 0.5f; // center z
+
+                for (unsigned int i = 0; i <= X; ++i)
+                {
+                    float u = static_cast<float>(i) / X;
+                    float x = (static_cast<float>(i) / X) - 0.5f; // center x
+
+                    // color
+                    float r = 1.0f;
+                    float g = 1.0f;
+                    float b = 1.0f;
+                    float a = 1.0f;
+
+                    vertices.push_back(x); // pos x
+                    vertices.push_back(0.0f); // pos y
+                    vertices.push_back(z); // pos z
+                    vertices.push_back(u); // tex u
+                    vertices.push_back(v); // tex v
+                    vertices.push_back(r);
+                    vertices.push_back(g);
+                    vertices.push_back(b);
+                    vertices.push_back(a);
+                }
+            }
+
+            return vertices;
+        }
+    }
     static std::vector<float> UnitGrid3D(int divisionsX, int divisionsY) {
         std::vector<float> vertices;
 
