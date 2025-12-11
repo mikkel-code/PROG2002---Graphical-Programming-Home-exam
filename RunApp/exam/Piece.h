@@ -2,8 +2,9 @@
 #define PIECE_H
 
 #include <vector>
-#include "Cube.h"
 #include <glm/glm.hpp>
+
+#include "cube.h"
 
 class Piece {
 public:
@@ -26,6 +27,5 @@ public:
         }
     }
 };
-
 
 #endif //PIECE_H
