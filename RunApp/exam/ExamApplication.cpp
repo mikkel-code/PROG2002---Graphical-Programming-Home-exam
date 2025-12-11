@@ -100,7 +100,7 @@ unsigned ExamApplication::Run() const {
 
 
     TextureManager* tm = TextureManager::GetInstance();
-    tm->LoadTexture2DRGBA("floor",std::string(TEXTURES_DIR) + "floor_texture.png", 0);
+    tm->LoadTexture2DRGBA("floor",std::string(TEXTURE_DIR) + "floor_texture.png", 0);
 
     BufferLayout floorLayout = {
         { ShaderDataType::Float3, "a_Position" }, // x y z
@@ -225,7 +225,6 @@ unsigned ExamApplication::Run() const {
         cubeShader->Bind();
         cubeShader->UploadUniformBool("useTexture", state.useTexture);
         cubeShader->UploadUniformFloat3("u_lightSourcePosition", state.activePiece.cubes[0].position);
-        cubeShader->UploadUniformMat4("model", model);
 
         for (const auto& cube : state.cubes) {
             cube.Draw(cubeShader, cubeVA);
@@ -249,11 +248,6 @@ unsigned ExamApplication::Run() const {
     }
     return 0;
 }
-
-
-
-
-
 
 
 void ExamApplication::SpawnRandomCube(ProgramState &state) {

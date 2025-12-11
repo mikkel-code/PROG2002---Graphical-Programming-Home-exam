@@ -13,13 +13,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         static int solidMode = 1;
         solidMode = (solidMode + 1) % 2; solidMode ? RenderCommands::SetSolidMode() : RenderCommands::SetWireframeMode();
     }
-    //if (key == GLFW_KEY_Q && action == GLFW_PRESS) {glfwSetWindowShouldClose(window, true);}
 
     if (key == GLFW_KEY_T && action == GLFW_PRESS) {
         state->useTexture = (state->useTexture + 1) % 2; // true / false
     }
-
-
 
     if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
         state->activePiece.Rotate(glm::radians(90.0f), glm::vec3(1,0,0));
