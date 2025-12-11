@@ -11,7 +11,6 @@
 struct ProgramState {
     std::vector<Cube> cubes;
     bool boardstate[5][5][10]= { false };
-    std::vector<Cube> activeCube;
     Piece activePiece;
 
     bool useTexture = false;
