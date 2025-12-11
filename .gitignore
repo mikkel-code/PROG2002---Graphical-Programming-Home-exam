@@ -1,0 +1,22 @@
+# IDE files
+.idea/
+.vs/
+
+# Build directories
+cmake-build-debug/
+out/build/
+
+# Compiled binaries
+*.exe
+*.obj
+*.pdb
+*.ilk
+
+# CMake intermediate files
+CMakeFiles/
+CMakeCache.txt
+*.cmake
+*.json
+
+# Misc
+*.log
