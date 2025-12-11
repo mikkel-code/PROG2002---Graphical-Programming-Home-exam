@@ -8,8 +8,6 @@
 #include "Shader.h"
 
 struct ProgramState {
-    //std::shared_ptr<Shader> shader;
-
     std::vector<Cube> cubes;
     bool boardstate[5][5][10]= { false };
     std::vector<Cube> activeCube;
@@ -17,16 +15,7 @@ struct ProgramState {
     bool useTexture = false;
     float ambientIllumination = 0.5;
 
-    // camera
-    float cameraAngle = 0.0f;
-    float cameraRadius = 3.0f;
-    glm::mat4 cameraViewProjection = glm::mat4(1.0f);
-
-    glm::vec3 cameraPosition = glm::vec3(
-        cameraRadius * cos(cameraAngle),
-        1.0f,
-        cameraRadius * sin(cameraAngle)
-    );
+    glm::vec3 cameraPosition = glm::vec3(1.0f);
     float fov = 45.0f;
 };
 

@@ -26,6 +26,7 @@ private:
 public:
     glm::vec4 color{0.0f};
     glm::vec3 position{0.0f};
+    glm::vec3 targetPosition{0.0f};
     glm::vec3 rotation{0.0f};
     glm::vec3 scale{0.05f};
 
