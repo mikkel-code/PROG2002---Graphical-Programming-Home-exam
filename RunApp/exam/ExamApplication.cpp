@@ -21,8 +21,9 @@
 #include <iostream>
 #include <glm/fwd.hpp>
 
-const double TARGET_FRAME_TIME = 1.0 / 60; // fps
-const double AUTOMOVE_TIMER = 2.0; // seconds
+constexpr double TARGET_FRAME_TIME = 1.0 / 60; // fps
+constexpr double AUTOMOVE_TIMER = 2.0; // seconds
+constexpr double CUBE_MOVESPEED = 5.0;
 
 const std::string TEXTURE_DIR = "resources/textures/";
 
@@ -69,11 +70,34 @@ unsigned ExamApplication::Run() const {
     //=====CAMERA END====================================================================================//
 
     //===== SCENE ========================================================================================//
+    std::vector<float> scene;
+    std::vector<unsigned int> indices;
+
     auto floor = GeometricTools::UnitGridGeometry2DWTCoords(5,10);
-    auto floorIndices  = GeometricTools::UnitGridTopologyTriangles(5,10);
+    auto floorIndices = GeometricTools::UnitGridTopologyTriangles(5,10);
 
     auto floorVB = std::make_shared<VertexBuffer>(floor.data(), static_cast<GLsizei>(floor.size()));
     auto floorIB = std::make_shared<IndexBuffer>(floorIndices.data(), static_cast<GLsizei>(floorIndices.size()));
+
+    float width = 5.0f;
+    float length = 10.0f;
+    float height = 3.0f;
+
+    glm::mat4 floorModel = glm::mat4(1.0f);
+    floorModel = glm::translate(floorModel, glm::vec3(0.0f, -1.0f, 0.0f));
+
+    glm::mat4 ceilingModel = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, height+1, 0.0f));
+    ceilingModel = glm::rotate(ceilingModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    glm::mat4 leftWallModel = glm::translate(glm::mat4(1.0f), glm::vec3(-width/2.0f, height/2.0f, 0.0f));
+    leftWallModel = glm::rotate(leftWallModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::mat4 rightWallModel = glm::translate(glm::mat4(1.0f), glm::vec3(width/2.0f, height/2.0f, 0.0f));
+    rightWallModel = glm::rotate(rightWallModel, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+    glm::mat4 backWallModel = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, height/2.0f + 2.5, -length/2.0f));
+    backWallModel = glm::rotate(backWallModel, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
 
     TextureManager* tm = TextureManager::GetInstance();
     tm->LoadTexture2DRGBA("floor",std::string(TEXTURES_DIR) + "floor_texture.png", 0);
@@ -107,25 +131,6 @@ unsigned ExamApplication::Run() const {
     floorShader->UploadUniformFloat("u_specularStrength", 0.5f);
     floorShader->UploadUniformMat4("proj", proj);
     floorShader->UploadUniformFloat3("u_cameraPosition", state.cameraPosition);
-
-    float width = 5.0f;
-    float length = 10.0f;
-    float height = 3.0f;
-
-    glm::mat4 floorModel = glm::mat4(1.0f);
-    floorModel = glm::translate(floorModel, glm::vec3(0.0f, -1.0f, 0.0f));
-
-    glm::mat4 ceilingModel = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, height+1, 0.0f));
-    ceilingModel = glm::rotate(ceilingModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    glm::mat4 leftWallModel = glm::translate(glm::mat4(1.0f), glm::vec3(-width/2.0f, height/2.0f, 0.0f));
-    leftWallModel = glm::rotate(leftWallModel, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    glm::mat4 rightWallModel = glm::translate(glm::mat4(1.0f), glm::vec3(width/2.0f, height/2.0f, 0.0f));
-    rightWallModel = glm::rotate(rightWallModel, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-    glm::mat4 backWallModel = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, height/2.0f + 2.5, -length/2.0f));
-    backWallModel = glm::rotate(backWallModel, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
     // Back wall
     auto backWall = GeometricTools::UnitGridGeometry2DWTCoords(5, 5);
@@ -198,7 +203,7 @@ unsigned ExamApplication::Run() const {
 
         floorShader->Bind();
         floorShader->UploadUniformBool("useTexture", state.useTexture);
-        floorShader->UploadUniformFloat3("u_lightSourcePosition", state.activeCube[0].position);
+        floorShader->UploadUniformFloat3("u_lightSourcePosition", state.activePiece.cubes[0].position);
 
         floorVA->Bind();
 
@@ -219,17 +224,23 @@ unsigned ExamApplication::Run() const {
 
         cubeShader->Bind();
         cubeShader->UploadUniformBool("useTexture", state.useTexture);
-        cubeShader->UploadUniformFloat3("u_lightSourcePosition", state.activeCube[0].position);
+        cubeShader->UploadUniformFloat3("u_lightSourcePosition", state.activePiece.cubes[0].position);
+        cubeShader->UploadUniformMat4("model", model);
 
         for (const auto& cube : state.cubes) {
             cube.Draw(cubeShader, cubeVA);
         }
 
         glDepthMask(GL_FALSE);
-        for (const auto& cube : state.activeCube) {
+        for (const auto& cube : state.activePiece.cubes) {
             cube.Draw(cubeShader, cubeVA);
         }
         glDepthMask(GL_TRUE);
+
+        // smooth movements
+        for (auto& cube : state.activePiece.cubes) {
+            cube.position = glm::mix(cube.position, cube.targetPosition, CUBE_MOVESPEED * deltaTime);
+        }
 
         glfwSwapBuffers(window);
 
@@ -265,22 +276,23 @@ void ExamApplication::SpawnRandomCube(ProgramState &state) {
 }
 
 void ExamApplication::PlaceCube(ProgramState &state) {
-    for (auto &cube : state.activeCube)
-    {
+    for (auto &cube : state.activePiece.cubes) {
+        cube.position = cube.targetPosition; // snap to cube
+
         cube.active = false;
         state.boardstate[cube.boardCoordx][cube.boardCoordy][cube.boardCoordz] = true;
         state.cubes.push_back(cube);
     }
-    state.activeCube.clear();
+    state.activePiece.cubes.clear();
     ExamApplication::SpawnRandomCube(state);
 }
 
 void ExamApplication::MoveCube(ProgramState &state, float deltaTime) {
-    static float moveDownTimer = AUTOMOVE_TIMER;  // persists between frames
+    static float moveDownTimer = AUTOMOVE_TIMER;
     moveDownTimer -= deltaTime;
     if (moveDownTimer <= 0.0f) {
         bool canMove = true;
-        for (auto& cube : state.activeCube) {
+        for (auto& cube : state.activePiece.cubes) {
             if (cube.boardCoordz == 9 || state.boardstate[cube.boardCoordx][cube.boardCoordy][cube.boardCoordz + 1]) {
                 canMove = false;
                 break;
@@ -289,9 +301,9 @@ void ExamApplication::MoveCube(ProgramState &state, float deltaTime) {
         if (!canMove) {
             ExamApplication::PlaceCube(state);
         } else {
-            for (auto& cube : state.activeCube) {
+            for (auto& cube : state.activePiece.cubes) {
                 cube.boardCoordz += 1;
-                cube.position.z -= 1.0f;
+                cube.targetPosition.z -= 1.0f;
             }
         }
         moveDownTimer = AUTOMOVE_TIMER;
