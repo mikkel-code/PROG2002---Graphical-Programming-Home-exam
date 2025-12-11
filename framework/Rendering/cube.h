@@ -26,6 +26,7 @@ private:
 public:
     glm::vec4 color{0.0f};
     glm::vec3 position{0.0f};
+    glm::vec3 targetPosition{0.0f};
     glm::vec3 rotation{0.0f};
     glm::vec3 scale{0.05f};
 
@@ -54,7 +55,7 @@ public:
         shader->UploadUniformMat4("model", GetModelMatrix());
         if (active) {
             shader->UploadUniformVec4("col", glm::vec4(0.0f,1.0f,0.0f,0.2f));
-        } else {shader->UploadUniformVec4("col", GetColorPerZ(boardCoordz));}
+        } else { shader->UploadUniformVec4("col", GetColorPerZ(boardCoordz));}
         cubeVA->Bind();
         RenderCommands::DrawIndex(GL_TRIANGLES, cubeVA);
     }

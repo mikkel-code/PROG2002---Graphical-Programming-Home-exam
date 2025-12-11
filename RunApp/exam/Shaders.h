@@ -60,7 +60,7 @@ const std::string fragmentShaderSrc = R"(
     uniform vec3 u_cameraPosition;
     uniform float u_specularStrength;
 
-    const float lineThickness = 0.02;
+    const float lineThickness = 0.04;
 
     void main() {
         float normalizedTileX = (localPos.x + boardWidth * 0.5) / boardWidth;
