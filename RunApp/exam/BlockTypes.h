@@ -14,6 +14,9 @@ static void SpawnNewCube(ProgramState &state) {
     c.active = true;
     c.boardCoordx = 0; c.boardCoordy = 0; c.boardCoordz = 0;
     state.activeCube.push_back(c);
+    Piece piece;
+    piece.cubes.push_back(c);
+    state.activePiece = piece;
 }
 
 static void SpawnNewCubeZ(ProgramState &state) {
@@ -55,6 +58,13 @@ static void SpawnNewCubeZ(ProgramState &state) {
     c4.active = true;
     c4.boardCoordx = 2; c4.boardCoordy = 1; c4.boardCoordz = 0;
     state.activeCube.push_back(c4);
+
+    Piece piece;
+    piece.cubes.push_back(c);
+    piece.cubes.push_back(c2);
+    piece.cubes.push_back(c3);
+    piece.cubes.push_back(c4);
+    state.activePiece = piece;;
 }
 
 static void SpawnNewCubeL(ProgramState &state) {
@@ -97,6 +107,13 @@ static void SpawnNewCubeL(ProgramState &state) {
     c4.active = true;
     c4.boardCoordx = 1; c4.boardCoordy = 2; c4.boardCoordz = 0;
     state.activeCube.push_back(c4);
+
+    Piece piece;
+    piece.cubes.push_back(c);
+    piece.cubes.push_back(c2);
+    piece.cubes.push_back(c3);
+    piece.cubes.push_back(c4);
+    state.activePiece = piece;;
 }
 
 static void SpawnNewCubeT(ProgramState &state) {
@@ -148,6 +165,14 @@ static void SpawnNewCubeT(ProgramState &state) {
     c5.active = true;
     c5.boardCoordx = 2; c5.boardCoordy = 2; c5.boardCoordz = 0;
     state.activeCube.push_back(c5);
+
+    Piece piece;
+    piece.cubes.push_back(c);
+    piece.cubes.push_back(c2);
+    piece.cubes.push_back(c3);
+    piece.cubes.push_back(c4);
+    piece.cubes.push_back(c5);
+    state.activePiece = piece;
 }
 
 

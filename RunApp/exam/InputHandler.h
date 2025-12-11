@@ -9,14 +9,40 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (!state) {std::cout << "Something wrong with UserPointer in key callbacks"; return;}
     // Move cubes
 
-    if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
         static int solidMode = 1;
         solidMode = (solidMode + 1) % 2; solidMode ? RenderCommands::SetSolidMode() : RenderCommands::SetWireframeMode();
     }
-    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {glfwSetWindowShouldClose(window, true);}
+    //if (key == GLFW_KEY_Q && action == GLFW_PRESS) {glfwSetWindowShouldClose(window, true);}
 
     if (key == GLFW_KEY_T && action == GLFW_PRESS) {
         state->useTexture = (state->useTexture + 1) % 2; // true / false
+    }
+
+
+
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        state->activePiece.Rotate(glm::radians(90.0f), glm::vec3(1,0,0));
+    }
+
+    if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+        state->activePiece.Rotate(glm::radians(90.0f), glm::vec3(0,1,0));
+    }
+
+    if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+        state->activePiece.Rotate(glm::radians(90.0f), glm::vec3(0,0,1));
+    }
+
+    if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+        state->activePiece.Rotate(glm::radians(90.0f), glm::vec3(-1,0,0));
+    }
+
+    if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+        state->activePiece.Rotate(glm::radians(90.0f), glm::vec3(0,-1,0));
+    }
+
+    if (key == GLFW_KEY_D && action == GLFW_PRESS) {
+        state->activePiece.Rotate(glm::radians(90.0f), glm::vec3(0,0,1));
     }
 }
 
@@ -30,14 +56,14 @@ void processInput(GLFWwindow* window, ProgramState& state, float deltaTime) {
         bool canMove = true;
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
             bool canMove = true;
-            for (const auto& cube : state.activeCube) {
+            for (const auto& cube : state.activePiece.cubes) {
                 if (cube.boardCoordy >= 4 || state.boardstate[cube.boardCoordx][cube.boardCoordy + 1][cube.boardCoordz]) {
                     canMove = false;
                     break;
                 }
             }
             if (canMove) {
-                for (auto& cube : state.activeCube) {
+                for (auto& cube : state.activePiece.cubes) {
                     cube.boardCoordy += 1;
                     cube.targetPosition.y += 1.0f;
                 }
@@ -47,14 +73,14 @@ void processInput(GLFWwindow* window, ProgramState& state, float deltaTime) {
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
             bool canMove = true;
-            for (const auto& cube : state.activeCube) {
+            for (const auto& cube : state.activePiece.cubes) {
                 if (cube.boardCoordy <= 0 || state.boardstate[cube.boardCoordx][cube.boardCoordy - 1][cube.boardCoordz]) {
                     canMove = false;
                     break;
                 }
             }
             if (canMove) {
-                for (auto& cube : state.activeCube) {
+                for (auto& cube : state.activePiece.cubes) {
                     cube.boardCoordy -= 1;
                     cube.targetPosition.y -= 1.0f;
                 }
@@ -64,14 +90,14 @@ void processInput(GLFWwindow* window, ProgramState& state, float deltaTime) {
 
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
             bool canMove = true;
-            for (const auto& cube : state.activeCube) {
+            for (const auto& cube : state.activePiece.cubes) {
                 if (cube.boardCoordx <= 0 || state.boardstate[cube.boardCoordx - 1][cube.boardCoordy][cube.boardCoordz]) {
                     canMove = false;
                     break;
                 }
             }
             if (canMove) {
-                for (auto& cube : state.activeCube) {
+                for (auto& cube : state.activePiece.cubes) {
                     cube.boardCoordx -= 1;
                     cube.targetPosition.x -= 1.0f;
                 }
@@ -81,13 +107,13 @@ void processInput(GLFWwindow* window, ProgramState& state, float deltaTime) {
 
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
             bool canMove = true;
-            for (const auto& cube : state.activeCube) {
+            for (const auto& cube : state.activePiece.cubes) {
                 if (cube.boardCoordx >= 4 || state.boardstate[cube.boardCoordx + 1][cube.boardCoordy][cube.boardCoordz]) {
                     canMove = false;
                 }
             }
             if (canMove) {
-                for (auto& cube : state.activeCube) {
+                for (auto& cube : state.activePiece.cubes) {
                     cube.boardCoordx += 1;
                     cube.targetPosition.x += 1.0f;
                 }
@@ -97,7 +123,7 @@ void processInput(GLFWwindow* window, ProgramState& state, float deltaTime) {
 
         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
             bool canMove = true;
-            for (const auto& cube : state.activeCube) {
+            for (const auto& cube : state.activePiece.cubes) {
                 if (cube.boardCoordz == 9 || state.boardstate[cube.boardCoordx][cube.boardCoordy][cube.boardCoordz + 1]) {
                     canMove = false;
                     break;
@@ -107,7 +133,7 @@ void processInput(GLFWwindow* window, ProgramState& state, float deltaTime) {
                 ExamApplication::PlaceCube(state);
                 moveTimer = cooldown;
             } else {
-                for (auto& cube : state.activeCube) {
+                for (auto& cube : state.activePiece.cubes) {
                     cube.boardCoordz += 1;
                     cube.targetPosition.z -= 1.0f;
                     moveTimer = cooldown;
@@ -117,7 +143,7 @@ void processInput(GLFWwindow* window, ProgramState& state, float deltaTime) {
 
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             int j = 11;
-            for (const auto& cube : state.activeCube) {
+            for (const auto& cube : state.activePiece.cubes) {
                 int drop = 0;
                 for (int i = cube.boardCoordz; i < 10; i++) {
                     if (i == 9 ||
@@ -130,7 +156,7 @@ void processInput(GLFWwindow* window, ProgramState& state, float deltaTime) {
                     j = drop;
                 }
             }
-            for (auto& cube : state.activeCube) {
+            for (auto& cube : state.activePiece.cubes) {
                 cube.boardCoordz += j;
                 cube.targetPosition.z -= static_cast<float>(j);
                 moveTimer = cooldown;

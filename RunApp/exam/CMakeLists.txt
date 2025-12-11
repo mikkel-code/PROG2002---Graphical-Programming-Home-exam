@@ -1,7 +1,8 @@
 add_executable(exam main.cpp "ExamApplication.cpp" "ExamApplication.h" "Shaders.h"
         "ProgramState.h"
         "InputHandler.h"
-        "BlockTypes.h")
+        "BlockTypes.h"
+        Piece.h)
 
 target_link_libraries(exam PRIVATE glfw)
 target_link_libraries(exam PRIVATE glad)

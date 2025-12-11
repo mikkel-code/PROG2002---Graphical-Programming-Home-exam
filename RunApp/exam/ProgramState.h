@@ -5,12 +5,14 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "cube.h"
+#include "Piece.h"
 #include "Shader.h"
 
 struct ProgramState {
     std::vector<Cube> cubes;
     bool boardstate[5][5][10]= { false };
     std::vector<Cube> activeCube;
+    Piece activePiece;
 
     bool useTexture = false;
     float ambientIllumination = 0.5;

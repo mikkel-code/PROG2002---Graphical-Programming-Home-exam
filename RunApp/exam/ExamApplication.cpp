@@ -70,6 +70,9 @@ unsigned ExamApplication::Run() const {
     //=====CAMERA END====================================================================================//
 
     //===== SCENE ========================================================================================//
+    std::vector<float> scene;
+    std::vector<unsigned int> indices;
+
     auto floor = GeometricTools::UnitGridGeometry2DWTCoords(5,10);
     auto floorIndices = GeometricTools::UnitGridTopologyTriangles(5,10);
 
@@ -95,10 +98,6 @@ unsigned ExamApplication::Run() const {
     glm::mat4 backWallModel = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, height/2.0f + 2.5, -length/2.0f));
     backWallModel = glm::rotate(backWallModel, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-    auto m = [&](glm::mat4 t) {
-        for(int i = 0; i < floor.size(); i+=3) {
-        }
-    };
 
     TextureManager* tm = TextureManager::GetInstance();
     tm->LoadTexture2DRGBA("floor",std::string(TEXTURES_DIR) + "floor_texture.png", 0);
@@ -204,7 +203,7 @@ unsigned ExamApplication::Run() const {
 
         floorShader->Bind();
         floorShader->UploadUniformBool("useTexture", state.useTexture);
-        floorShader->UploadUniformFloat3("u_lightSourcePosition", state.activeCube[0].position);
+        floorShader->UploadUniformFloat3("u_lightSourcePosition", state.activePiece.cubes[0].position);
 
         floorVA->Bind();
 
@@ -225,20 +224,21 @@ unsigned ExamApplication::Run() const {
 
         cubeShader->Bind();
         cubeShader->UploadUniformBool("useTexture", state.useTexture);
-        cubeShader->UploadUniformFloat3("u_lightSourcePosition", state.activeCube[0].position);
+        cubeShader->UploadUniformFloat3("u_lightSourcePosition", state.activePiece.cubes[0].position);
+        cubeShader->UploadUniformMat4("model", model);
 
         for (const auto& cube : state.cubes) {
             cube.Draw(cubeShader, cubeVA);
         }
 
         glDepthMask(GL_FALSE);
-        for (const auto& cube : state.activeCube) {
+        for (const auto& cube : state.activePiece.cubes) {
             cube.Draw(cubeShader, cubeVA);
         }
         glDepthMask(GL_TRUE);
 
         // smooth movements
-        for (auto& cube : state.activeCube) {
+        for (auto& cube : state.activePiece.cubes) {
             cube.position = glm::mix(cube.position, cube.targetPosition, CUBE_MOVESPEED * deltaTime);
         }
 
@@ -276,14 +276,14 @@ void ExamApplication::SpawnRandomCube(ProgramState &state) {
 }
 
 void ExamApplication::PlaceCube(ProgramState &state) {
-    for (auto &cube : state.activeCube) {
+    for (auto &cube : state.activePiece.cubes) {
         cube.position = cube.targetPosition; // snap to cube
 
         cube.active = false;
         state.boardstate[cube.boardCoordx][cube.boardCoordy][cube.boardCoordz] = true;
         state.cubes.push_back(cube);
     }
-    state.activeCube.clear();
+    state.activePiece.cubes.clear();
     ExamApplication::SpawnRandomCube(state);
 }
 
@@ -292,7 +292,7 @@ void ExamApplication::MoveCube(ProgramState &state, float deltaTime) {
     moveDownTimer -= deltaTime;
     if (moveDownTimer <= 0.0f) {
         bool canMove = true;
-        for (auto& cube : state.activeCube) {
+        for (auto& cube : state.activePiece.cubes) {
             if (cube.boardCoordz == 9 || state.boardstate[cube.boardCoordx][cube.boardCoordy][cube.boardCoordz + 1]) {
                 canMove = false;
                 break;
@@ -301,7 +301,7 @@ void ExamApplication::MoveCube(ProgramState &state, float deltaTime) {
         if (!canMove) {
             ExamApplication::PlaceCube(state);
         } else {
-            for (auto& cube : state.activeCube) {
+            for (auto& cube : state.activePiece.cubes) {
                 cube.boardCoordz += 1;
                 cube.targetPosition.z -= 1.0f;
             }

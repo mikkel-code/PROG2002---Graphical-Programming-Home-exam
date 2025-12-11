@@ -55,7 +55,7 @@ public:
         shader->UploadUniformMat4("model", GetModelMatrix());
         if (active) {
             shader->UploadUniformVec4("col", glm::vec4(0.0f,1.0f,0.0f,0.2f));
-        } else {shader->UploadUniformVec4("col", GetColorPerZ(boardCoordz));}
+        } else { shader->UploadUniformVec4("col", GetColorPerZ(boardCoordz));}
         cubeVA->Bind();
         RenderCommands::DrawIndex(GL_TRIANGLES, cubeVA);
     }
