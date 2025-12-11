@@ -14,7 +14,10 @@ public:
 
     void Bind() const;
     void Unbind() const;
+
+    void UploadUniformFloat(const std::string &name, float value);
     void UploadUniformFloat2(const std::string& name, const glm::vec2& vector);
+    void UploadUniformFloat3(const std::string& name, const glm::vec3& vector);
     void UploadUniformInt(const std::string& name, GLint value);
 
     void UploadUniformBool(const std::string &name, bool value);

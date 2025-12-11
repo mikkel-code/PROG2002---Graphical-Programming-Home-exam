@@ -51,6 +51,16 @@ void Shader::Bind() const {
 void Shader::Unbind() const {
     glUseProgram(0);
 }
+
+void Shader::UploadUniformFloat(const std::string& name, float value) {
+    GLint location = glGetUniformLocation(ShaderProgram, name.c_str());
+    if (location == -1) {
+        std::cerr << "WARNING::SHADER::UNIFORM_NOT_FOUND: " << name << std::endl;
+        return;
+    }
+    glUniform1f(location, value);
+}
+
 void Shader::UploadUniformFloat2(const std::string& name, const glm::vec2& vector) {
     GLint location = glGetUniformLocation(ShaderProgram, name.c_str());
 
@@ -61,6 +71,18 @@ void Shader::UploadUniformFloat2(const std::string& name, const glm::vec2& vecto
     }
     glUniform2f(location, vector.x, vector.y);
 }
+
+void Shader::UploadUniformFloat3(const std::string& name, const glm::vec3& vector) {
+    GLint location = glGetUniformLocation(ShaderProgram, name.c_str());
+
+    if (location == -1) {
+        std::cerr << "WARNING::SHADER::UNIFORM_NOT_FOUND: " << name << std::endl;
+        return;
+    }
+
+    glUniform3f(location, vector.x, vector.y, vector.z);
+}
+
 
 void Shader::UploadUniformInt(const std::string& name, GLint value) {
     GLint location = glGetUniformLocation(ShaderProgram, name.c_str());
@@ -102,11 +124,13 @@ void Shader::UploadUniformVec4(const std::string& name, const glm::vec4& vec) {
     glUniform4fv(location, 1, glm::value_ptr(vec));
 }
 
+
+
 // For possible new uses IDK
-void Shader::CompileShader(GLenum shaderType, const std::string &shaderSrc)
-{
+void Shader::CompileShader(GLenum shaderType, const std::string &shaderSrc) {
     GLuint shader = glCreateShader(shaderType);
     const char* src = shaderSrc.c_str();
     glShaderSource(shader, 1, &src, nullptr);
     glCompileShader(shader);
+
 }

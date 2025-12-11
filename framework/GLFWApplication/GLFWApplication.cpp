@@ -28,7 +28,7 @@ unsigned GLFWApplication::Init() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Creating the window and giving it context.
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Prog2002", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1024, 768, "Prog2002", nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();
